@@ -65,7 +65,7 @@
                 <div class="max-w-lg mx-auto">
                     <h1 class="mb-5 text-xl font-semibold text-white md:text-3xl lg:text-4xl">Welcome to Library App</h1>
                     <p class="mb-5 text-sm text-white md:text-base">Choose from a wide range of popular books from all the categories you want here.</p>
-                    <a href="#" class="btn btn-sm bg-gray-800 text-white">Check Our Books</a>
+                    <a href="#" class="px-4 py-2 bg-black text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300 text-white">Check Our Books</a>
                 </div>
             </div>
         </div>

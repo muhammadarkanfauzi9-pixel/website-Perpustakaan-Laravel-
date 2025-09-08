@@ -4,26 +4,35 @@
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
     </a>
+
     <a href="{{ route('admin.users') }}"
         class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
         <i class="fas fa-users"></i>
         <span>Users</span>
     </a>
-    <a href="{{ route('admin.books') }}"
-        class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
-        <i class="fas fa-gear"></i>
-        <span>Settings</span>
-    </a>
 
-    <a href="{{ route('admin.books') }}"
+    <a href="{{ route('admin.books.index') }}"
         class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
         <i class="fas fa-book"></i>
         <span>Books</span>
     </a>
+
+    <a href="{{ route('admin.books.index') }}"
+        class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
+        <i class="fas fa-gear"></i>
+        <span>Settings</span>
+    </a>
+    
+    <a href="{{ route('admin.publishers.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Publishers</a>
+    <a href="{{ route('admin.shelves.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Shelves</a>
+    <a href="{{ route('admin.categories.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Categories</a>
+    <a href="{{ route('admin.borrowings.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Borrowings</a>
+    <a href="{{ route('admin.authors.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Authors</a>
 
     <a href="{{ route('logout') }}"
         class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
     </a>
+
 </nav>

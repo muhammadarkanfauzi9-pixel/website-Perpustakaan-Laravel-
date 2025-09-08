@@ -11,8 +11,9 @@ class AdminUserController extends Controller
     /**
      * Menampilkan daftar pengguna (user).
      */
-    public function index(): View
-    {
-        return view('admin.users');
-    }
+   public function index()
+{
+    $users = \App\Models\User::paginate(10);
+    return view('admin.users.index', compact('users'));
+}
 }

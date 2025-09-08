@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePublisherRequest;
+use App\Http\Requests\UpdatePublisherRequest;
+use App\Models\Publisher;
+use Illuminate\Http\Request;
+
+class AdminPublisherController extends Controller
+{
+    public function index()
+    {
+        $publishers = Publisher::all();
+        return view('admin.publishers.index', compact('publishers'));
+    }
+
+    public function create()
+    {
+        // Tidak diperlukan karena kita menggunakan modal
+    }
+
+    public function store(StorePublisherRequest $request)
+    {
+        Publisher::create($request->validated());
+        return redirect()->route('admin.publishers.index')->with('success', 'Publisher added successfully!');
+    }
+
+    public function show(string $id)
+    {
+        // Tidak diperlukan
+    }
+
+    public function edit(Publisher $publisher)
+    {
+        return response()->json($publisher);
+    }
+
+    public function update(UpdatePublisherRequest $request, Publisher $publisher)
+    {
+        $publisher->update($request->validated());
+        return redirect()->route('admin.publishers.index')->with('success', 'Publisher updated successfully!');
+    }
+
+    public function destroy(Publisher $publisher)
+    {
+        $publisher->delete();
+        return response()->json(['success' => 'Publisher deleted successfully!']);
+    }
+}
