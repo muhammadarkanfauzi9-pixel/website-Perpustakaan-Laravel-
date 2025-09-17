@@ -43,5 +43,10 @@ class AdminAuthorController extends Controller
         $author->delete();
         return redirect()->route('admin.authors.index')->with('success', 'Author deleted successfully!');
     }
+    public function json($id)
+{
+    $author = Author::findOrFail($id);
+    return response()->json($author);
+}
     // ... (metode lainnya)
 }

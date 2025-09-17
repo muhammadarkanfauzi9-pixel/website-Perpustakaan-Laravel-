@@ -11,18 +11,17 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true; // Perbaiki ini menjadi true
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255|unique:categories,name,' . $this->route('category'),
+            'description' => 'nullable|string',
         ];
     }
 }

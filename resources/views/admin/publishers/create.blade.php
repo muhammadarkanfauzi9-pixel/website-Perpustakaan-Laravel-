@@ -1,30 +1,79 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6">Add New Publisher</h1>
+<div class="container">
+    <h1>Publishers</h1>
 
-        @if ($errors->any())
-            <div class="bg-red-500 text-white p-4 rounded-lg mb-4">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+    {{-- Flash Message --}}
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-        <form action="{{ route('admin.publishers.store') }}" method="POST" class="bg-white shadow-md rounded-lg p-6">
-            @csrf
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 font-bold mb-2">Publisher Name</label>
-                <input type="text" name="name" id="name" value="{{ old('name') }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    {{-- Tombol Add Publisher --}}
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPublisherModal">
+        Add Publisher
+    </button>
+
+    {{-- Tabel Publisher --}}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($publishers as $publisher)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $publisher->name }}</td>
+                    <td>{{ $publisher->address }}</td>
+                    <td>{{ $publisher->phone }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4" class="text-center">No publishers found</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    {{-- Pagination --}}
+    {{ $publishers->links() }}
+</div>
+
+{{-- Modal Add Publisher --}}
+<div class="modal fade" id="addPublisherModal" tabindex="-1" aria-labelledby="addPublisherModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Publisher</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{{ route('admin.publishers.store') }}">
+        @csrf
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="name" class="form-label">Publisher Name</label>
+                <input type="text" class="form-control" name="name" required>
             </div>
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-                    Add Publisher
-                </button>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" class="form-control" name="address">
             </div>
-        </form>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="text" class="form-control" name="phone">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
     </div>
+  </div>
+</div>
 @endsection

@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -11,10 +9,13 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    // database/seeders/DatabaseSeeder.php
-
-public function run(): void
-{
-    $this->call(AdminUserSeeder::class);
-}
+    public function run(): void
+    {
+        $this->call([
+            AdminUserSeeder::class,
+            CategorySeeder::class, // tambahkan ini
+            AuthorSeeder::class,   // kalau mau seed author
+            BookSeeder::class,     // tambahkan ini
+        ]);
+    }
 }

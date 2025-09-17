@@ -2,23 +2,34 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Models\Author;
 use App\Models\Publisher;
 use App\Models\Shelf;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facades\Storage;
 
 class AdminBookController extends Controller
 {
     public function index()
     {
-        // Menggunakan with() untuk memuat relasi (eager loading)
-        // Menggunakan paginate() untuk pagination
-        $books = Book::with(['publisher', 'shelf', 'category'])->paginate(10);
-        return view('admin.books.index', compact('books'));
+        $books = Book::with(['author', 'publisher', 'category', 'shelf'])->paginate(10);
+        $authors = Author::all();
+        $publishers = Publisher::all();
+        $categories = Category::all();
+        $shelves = Shelf::all();
+
+        return view('admin.books.index', compact('books', 'authors', 'publishers', 'categories', 'shelves'));
+    }
+
+    // Metode ini digunakan untuk mengambil data JSON (sebelumnya bernama `json`)
+    public function show(Book $book)
+    {
+        return response()->json($book->load(['author', 'publisher', 'category', 'shelf']));
     }
 
     public function create()
@@ -26,21 +37,32 @@ class AdminBookController extends Controller
         $publishers = Publisher::all();
         $shelves = Shelf::all();
         $categories = Category::all();
-        return view('admin.books.create', compact('publishers', 'shelves', 'categories'));
+        $authors = Author::all();
+
+        return view('admin.books.create', compact('publishers', 'shelves', 'categories', 'authors'));
     }
 
     public function store(StoreBookRequest $request)
     {
-        $validated = $request->validated();
-        Book::create($validated);
-        return redirect()->route('admin.books.index')->with('success', 'Book added successfully!');
-    }
+        $data = $request->validated();
 
-    public function show(Book $book)
-    {
-        // Eager load relasi untuk tampilan detail
-        $book->load('publisher', 'shelf', 'category');
-        return view('admin.books.show', compact('book'));
+        if ($request->filled('author_name')) {
+            $author = Author::create(['name' => $request->author_name]);
+            $data['author_id'] = $author->id;
+        } else {
+            $data['author_id'] = $request->author_id;
+        }
+
+        if ($request->hasFile('book_img')) {
+            $path = $request->file('book_img')->store('books', 'public');
+            $data['book_img'] = $path;
+        } else {
+            $data['book_img'] = 'books/default.png';
+        }
+
+        Book::create($data);
+
+        return redirect()->route('admin.books.index')->with('success', 'Book added successfully.');
     }
 
     public function edit(Book $book)
@@ -48,19 +70,48 @@ class AdminBookController extends Controller
         $publishers = Publisher::all();
         $shelves = Shelf::all();
         $categories = Category::all();
-        return view('admin.books.edit', compact('book', 'publishers', 'shelves', 'categories'));
+        $authors = Author::all();
+
+        return view('admin.books.edit', compact('book', 'publishers', 'shelves', 'categories', 'authors'));
     }
 
     public function update(UpdateBookRequest $request, Book $book)
     {
-        $validated = $request->validated();
-        $book->update($validated);
-        return redirect()->route('admin.books.index')->with('success', 'Book updated successfully!');
+        $data = $request->validated();
+
+        if ($request->filled('author_name')) {
+            $author = Author::create(['name' => $request->author_name]);
+            $data['author_id'] = $author->id;
+        }
+
+        if ($request->hasFile('book_img')) {
+            if ($book->book_img && $book->book_img !== 'books/default.png' && Storage::disk('public')->exists($book->book_img)) {
+                Storage::disk('public')->delete($book->book_img);
+            }
+            $path = $request->file('book_img')->store('books', 'public');
+            $data['book_img'] = $path;
+        } else {
+            $data['book_img'] = $book->book_img;
+        }
+
+        $book->update($data);
+
+        return redirect()->route('admin.books.index')->with('success', 'Book updated successfully.');
     }
 
     public function destroy(Book $book)
-    {
-        $book->delete();
-        return redirect()->route('admin.books.index')->with('success', 'Book deleted successfully!');
+{
+    // Hapus semua data peminjaman yang terkait dengan buku ini terlebih dahulu
+    $book->borrowings()->delete();
+
+    // Hapus file gambar buku (jika ada)
+    if ($book->book_img && $book->book_img !== 'books/default.png' && Storage::disk('public')->exists($book->book_img)) {
+        Storage::disk('public')->delete($book->book_img);
     }
+
+    // Hapus buku
+    $book->delete();
+
+    return redirect()->route('admin.books.index')->with('success', 'Book deleted successfully.');
+}
 }

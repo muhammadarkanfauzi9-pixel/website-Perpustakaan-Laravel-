@@ -65,7 +65,7 @@
     async function openModal(authorId) {
         currentAuthorId = authorId;
         try {
-            const response = await fetch(`/admin/authors/${authorId}/edit`);
+            const response = await fetch(`/admin/authors/${authorId}/json`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const author = await response.json();

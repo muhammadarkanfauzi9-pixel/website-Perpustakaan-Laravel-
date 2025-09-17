@@ -12,7 +12,7 @@ class AdminPublisherController extends Controller
 {
     public function index()
     {
-        $publishers = Publisher::all();
+        $publishers = Publisher::paginate(10);
         return view('admin.publishers.index', compact('publishers'));
     }
 
@@ -21,11 +21,23 @@ class AdminPublisherController extends Controller
         // Tidak diperlukan karena kita menggunakan modal
     }
 
-    public function store(StorePublisherRequest $request)
-    {
-        Publisher::create($request->validated());
-        return redirect()->route('admin.publishers.index')->with('success', 'Publisher added successfully!');
-    }
+   public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'address' => 'required|string|max:255',
+        'phone' => 'required|string|max:20',
+    ]);
+
+    Publisher::create([
+        'name' => $request->name,
+        'address' => $request->address,
+        'phone' => $request->phone,
+    ]);
+
+    return redirect()->route('admin.publishers.index')->with('success', 'Publisher berhasil ditambahkan.');
+}
+
 
     public function show(string $id)
     {
@@ -46,6 +58,10 @@ class AdminPublisherController extends Controller
     public function destroy(Publisher $publisher)
     {
         $publisher->delete();
-        return response()->json(['success' => 'Publisher deleted successfully!']);
+        return redirect()
+        ->route('admin.publishers.index')
+        ->with('success', 'Publisher deleted successfully!');
     }
+
+    
 }

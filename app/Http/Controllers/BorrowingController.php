@@ -13,39 +13,26 @@ class BorrowingController extends Controller
     public function index()
     {
         $borrowings = Auth::user()->borrowings()->with('book')->paginate(10);
-        return view('borrowings.index', compact('borrowings'));
+        return view('users.borrowings.index', compact('borrowings'));
     }
 
     // Menambah data peminjaman buku
     public function store(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'book_id' => 'required|exists:books,id',
-        ]);
+{
+    $request->validate(['book_id' => 'required|exists:books,id']);
 
-        // Buat data peminjaman baru
-        Borrowing::create([
-            'user_id' => Auth::id(),
-            'book_id' => $request->book_id,
-            'borrowed_at' => now(),
-        ]);
-
-        return redirect()->back()->with('success', 'Buku berhasil dipinjam!');
+    $book = Book::findOrFail($request->book_id);
+    if (!$book->isAvailable()) { // Panggil method isAvailable() yang sudah kita buat
+        return redirect()->back()->with('error', 'Buku ini sedang tidak tersedia.');
     }
 
-    // Mengembalikan buku yang sudah dipinjam
-    public function update(Request $request, Borrowing $borrowing)
-    {
-        // Pastikan pengguna yang mengembalikan buku adalah pemilik data peminjaman
-        if ($borrowing->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+    Borrowing::create([
+        'user_id' => Auth::id(),
+        'book_id' => $request->book_id,
+        'borrowed_at' => now(),
+    ]);
 
-        $borrowing->update([
-            'returned_at' => now(),
-        ]);
+    return redirect()->back()->with('success', 'Buku berhasil dipinjam!');
+}
 
-        return redirect()->back()->with('success', 'Buku berhasil dikembalikan!');
-    }
 }

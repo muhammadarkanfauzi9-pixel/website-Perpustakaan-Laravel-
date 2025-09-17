@@ -23,20 +23,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($shelves as $shelf)
+                    @forelse ($shelves as $shelf)
                         <tr>
                             <td class="py-2 px-4 border-b">{{ $shelf->id }}</td>
                             <td class="py-2 px-4 border-b">{{ $shelf->name }}</td>
                             <td class="py-2 px-4 border-b flex space-x-2">
-                                <a href="{{ route('admin.shelves.edit', $shelf) }}" class="bg-yellow-500 text-white px-3 py-1 rounded-md">Edit</a>
-                                <form action="{{ route('admin.shelves.destroy', $shelf) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                <a href="{{ route('admin.shelves.edit', $shelf) }}" 
+                                   class="bg-yellow-500 text-white px-3 py-1 rounded-md">Edit</a>
+                                <form action="{{ route('admin.shelves.destroy', $shelf) }}" method="POST" 
+                                      onsubmit="return confirm('Are you sure?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded-md">Delete</button>
+                                    <button type="submit" 
+                                            class="bg-red-500 text-white px-3 py-1 rounded-md">Delete</button>
                                 </form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="3" class="py-4 px-4 text-center text-gray-500">
+                                No shelves found.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

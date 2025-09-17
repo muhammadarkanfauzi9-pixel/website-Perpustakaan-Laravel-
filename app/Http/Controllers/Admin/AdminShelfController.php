@@ -3,68 +3,50 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shelf; // Pastikan untuk mengimpor model Shelf
+use App\Http\Requests\StoreShelfRequest;
+use App\Http\Requests\UpdateShelfRequest;
+use App\Models\Shelf;
 use Illuminate\Http\Request;
 
 class AdminShelfController extends Controller
 {
-    /**
-     * Menampilkan daftar semua rak.
-     */
     public function index()
     {
-        // Ambil semua rak dari database dan lakukan pagination
         $shelves = Shelf::paginate(10);
-        
-        // Kembalikan view dengan data rak
         return view('admin.shelves.index', compact('shelves'));
     }
 
-    /**
-     * Menampilkan form untuk membuat rak baru.
-     */
     public function create()
     {
-        // Tambahkan logika Anda untuk menampilkan form create di sini
+         return view('admin.shelves.create');
     }
 
-    /**
-     * Menyimpan rak yang baru dibuat ke dalam storage.
-     */
-    public function store(Request $request)
+    public function store(StoreShelfRequest $request)
     {
-        // Tambahkan logika Anda untuk menyimpan rak baru di sini
+        Shelf::create($request->validated());
+        return redirect()->route('admin.shelves.index')->with('success', 'Shelf added successfully!');
     }
 
-    /**
-     * Menampilkan rak yang ditentukan.
-     */
-    public function show(Shelf $shelf)
+    public function show(string $id)
     {
-        // Tambahkan logika Anda untuk menampilkan rak tunggal di sini
+        // ...
     }
 
-    /**
-     * Menampilkan form untuk mengedit rak yang ditentukan.
-     */
     public function edit(Shelf $shelf)
     {
-        // Tambahkan logika Anda untuk menampilkan form edit di sini
+        return response()->json($shelf);
     }
 
-    /**
-     * Memperbarui rak yang ditentukan di storage.
-     */
-    public function update(Request $request, Shelf $shelf)
+    public function update(UpdateShelfRequest $request, Shelf $shelf)
     {
-        // Tambahkan logika Anda untuk memperbarui rak di sini
+        dd($shelf->id);
+        $shelf->update($request->validated());
+        return redirect()->route('admin.shelves.index')->with('success', 'Shelf updated successfully!');
     }
 
-    /**
-     * Menghapus rak yang ditentukan dari storage.
-     */
     public function destroy(Shelf $shelf)
     {
-        // Tambahkan logika Anda untuk menghapus rak di sini
+        $shelf->delete();
+        return response()->json(['success' => 'Shelf deleted successfully!']);
     }
 }

@@ -3,68 +3,50 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category; // Pastikan untuk mengimpor model Category
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
+use App\Models\Category;
 
 class AdminCategoryController extends Controller
 {
-    /**
-     * Menampilkan daftar semua kategori.
-     */
     public function index()
     {
-        // Ambil semua kategori dari database dan lakukan pagination
         $categories = Category::paginate(10);
-        
-        // Kembalikan view dengan data kategori
         return view('admin.categories.index', compact('categories'));
     }
 
-    /**
-     * Menampilkan form untuk membuat kategori baru.
-     */
-    public function create()
+    public function store(StoreCategoryRequest $request)
     {
-        // ... Logika Anda di sini
+        Category::create($request->validated());
+        return redirect()->route('admin.categories.index')->with('success', 'Category added successfully!');
     }
 
-    /**
-     * Menyimpan kategori yang baru dibuat ke dalam storage.
-     */
-    public function store(Request $request)
+    public function json($id)
     {
-        // ... Logika Anda di sini
+        $category = Category::findOrFail($id);
+        return response()->json($category);
     }
 
-    /**
-     * Menampilkan kategori yang ditentukan.
-     */
-    public function show(Category $category)
+    public function update(UpdateCategoryRequest $request, $id)
     {
-        // ... Logika Anda di sini
+        $category = Category::findOrFail($id);
+        $category->update($request->validated());
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit kategori yang ditentukan.
-     */
-    public function edit(Category $category)
-    {
-        // ... Logika Anda di sini
+    public function destroy($id)
+{
+    $category = Category::findOrFail($id);
+
+    // Cek apakah ada buku terkait
+    if ($category->books()->count() > 0) {
+        return redirect()->route('admin.categories.index')
+                         ->with('error', 'Cannot delete category. There are books associated with it.');
     }
 
-    /**
-     * Memperbarui kategori yang ditentukan di storage.
-     */
-    public function update(Request $request, Category $category)
-    {
-        // ... Logika Anda di sini
-    }
+    $category->delete();
+    return redirect()->route('admin.categories.index')
+                     ->with('success', 'Category deleted successfully!');
+}
 
-    /**
-     * Menghapus kategori yang ditentukan dari storage.
-     */
-    public function destroy(Category $category)
-    {
-        // ... Logika Anda di sini
-    }
 }
