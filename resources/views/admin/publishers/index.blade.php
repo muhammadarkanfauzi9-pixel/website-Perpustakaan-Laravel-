@@ -3,117 +3,175 @@
 @section('title', 'Publishers')
 
 @section('content')
-<div class="bg-white p-6 rounded shadow">
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-xl font-semibold">Publishers</h1>
-        <button onclick="openModal('add')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            + Add Publisher
-        </button>
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Publishers</h1>
+
+    @if (session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <!-- Search Input -->
+    <div class="mb-4">
+        <input type="text" id="search-input" placeholder="Search publishers..." class="shadow border rounded w-full py-2 px-3">
     </div>
 
-    {{-- Table --}}
-    <table class="w-full border text-sm">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border px-4 py-2">#</th>
-                <th class="border px-4 py-2">Name</th>
-                <th class="border px-4 py-2">Address</th>
-                <th class="border px-4 py-2">Phone</th>
-                <th class="border px-4 py-2">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($publishers as $publisher)
-            <tr>
-                <td class="border px-4 py-2">{{ $loop->iteration }}</td>
-                <td class="border px-4 py-2">{{ $publisher->name }}</td>
-                <td class="border px-4 py-2">{{ $publisher->address ?? '-' }}</td>
-                <td class="border px-4 py-2">{{ $publisher->phone ?? '-' }}</td>
-                <td class="border px-4 py-2 flex gap-2">
-                    {{-- Tombol Edit --}}
-                    <button 
-                        onclick="openModal('edit', {{ $publisher->id }}, '{{ $publisher->name }}', '{{ $publisher->address }}', '{{ $publisher->phone }}')" 
-                        class="text-blue-600 hover:underline">
-                        Edit
-                    </button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="p-4 bg-gray-100 font-semibold">Publisher Table</div>
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-2 px-4 border-b text-left">No</th>
+                        <th class="py-2 px-4 border-b text-left">Name</th>
+                        <th class="py-2 px-4 border-b text-left">Address</th>
+                        <th class="py-2 px-4 border-b text-left">Phone</th>
+                    </tr>
+                </thead>
+                <tbody id="publisher-table-body">
+                    {{-- Ini akan diisi oleh konten dari _table.blade.php --}}
+                    @include('admin.publishers._table', ['publishers' => $publishers])
+                </tbody>
+            </table>
 
-                    {{-- Tombol Delete --}}
-                    <form action="{{ route('admin.publishers.destroy', $publisher->id) }}" method="POST"
-                        onsubmit="return confirm('Yakin hapus?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="text-red-600 hover:underline">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+            {{-- Navigasi Pagination --}}
+            <div id="pagination-links" class="p-4 flex justify-center">
+                {{-- Remove default Laravel pagination links to avoid duplication --}}
+                {{-- AJAX pagination handled in script --}}
+            </div>
+        </div>
 
-{{-- Modal (Add & Edit pakai 1 modal) --}}
-<div id="publisherModal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 id="modalTitle" class="text-lg font-semibold mb-4">Add Publisher</h2>
-        <form id="publisherForm" method="POST">
-            @csrf
-            <input type="hidden" name="_method" id="formMethod" value="POST">
-
-            <div class="mb-3">
-                <label class="block text-sm font-medium">Name</label>
-                <input type="text" name="name" id="publisherName" class="w-full border rounded px-3 py-2" required>
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium">Address</label>
-                <input type="text" name="address" id="publisherAddress" class="w-full border rounded px-3 py-2">
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium">Phone</label>
-                <input type="text" name="phone" id="publisherPhone" class="w-full border rounded px-3 py-2">
-            </div>
-            <div class="flex justify-end gap-2 mt-4">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
-            </div>
-        </form>
+        {{-- Form Tambah Publisher --}}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <div class="p-4 bg-gray-100 font-semibold mb-4">Create Publisher Form</div>
+            <form action="{{ route('admin.publishers.store') }}" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label for="name" class="block text-gray-700 font-bold mb-2">Publisher Name</label>
+                    <input type="text" name="name" id="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                    <label for="address" class="block text-gray-700 font-bold mb-2">Address</label>
+                    <input type="text" name="address" id="address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                    <label for="phone" class="block text-gray-700 font-bold mb-2">Phone</label>
+                    <input type="text" name="phone" id="phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Create</button>
+            </form>
+        </div>
     </div>
 </div>
+
+{{-- Memanggil komponen pop-up modal (edit & delete) --}}
+@include('components.admin.edit-publishers-modal')
 @endsection
 
 @push('scripts')
-<script>
-    function openModal(type, id = null, name = '', address = '', phone = '') {
-        const modal = document.getElementById('publisherModal');
-        const title = document.getElementById('modalTitle');
-        const form = document.getElementById('publisherForm');
-        const method = document.getElementById('formMethod');
+    <script>
+        const modal = document.getElementById('edit-publisher-modal');
+        const updateForm = document.getElementById('update-form');
+        const deleteForm = document.getElementById('delete-form');
+        
+        const editNameInput = document.getElementById('edit-name');
+        const editAddressInput = document.getElementById('edit-address');
+        const editPhoneInput = document.getElementById('edit-phone');
 
-        // Reset form
-        form.reset();
+        async function openModal(publisherId) {
+            try {
+                const response = await fetch(`/admin/publishers/${publisherId}/json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-        if (type === 'add') {
-            title.innerText = "Add Publisher";
-            form.action = "{{ route('admin.publishers.store') }}";
-            method.value = "POST";
-        } else if (type === 'edit') {
-            title.innerText = "Edit Publisher";
-            form.action = "/admin/publishers/" + id;
-            method.value = "PUT";
+                const publisher = await response.json();
 
-            document.getElementById('publisherName').value = name;
-            document.getElementById('publisherAddress').value = address;
-            document.getElementById('publisherPhone').value = phone;
+                editNameInput.value = publisher.name;
+                editAddressInput.value = publisher.address || '';
+                editPhoneInput.value = publisher.phone || '';
+
+                if (updateForm) {
+                    updateForm.action = `/admin/publishers/${publisherId}`;
+                }
+                if (deleteForm) {
+                    deleteForm.action = `/admin/publishers/${publisherId}`;
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } catch (error) {
+                console.error('Error fetching publisher data:', error);
+                alert('Failed to load publisher data. Check console for details.');
+            }
         }
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
 
-    function closeModal() {
-        const modal = document.getElementById('publisherModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-</script>
+        // Kode AJAX Pagination and Search
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const tableBody = document.getElementById('publisher-table-body');
+            const paginationLinks = document.getElementById('pagination-links');
+
+            // Event listener untuk klik pada baris tabel (untuk modal)
+            function addModalListeners() {
+                document.querySelectorAll('tr[id^="publisher-"]').forEach(row => {
+                    row.addEventListener('click', function() {
+                        const publisherId = this.id.split('-')[1];
+                        openModal(publisherId);
+                    });
+                });
+            }
+            addModalListeners();
+
+            // Function to fetch and render publishers
+            function fetchAndRenderPublishers(url) {
+                const searchQuery = searchInput.value;
+                const params = new URLSearchParams();
+                if (searchQuery) params.append('publisher_name', searchQuery);
+
+                const fullUrl = url ? `${url.split('?')[0]}?${params.toString()}` : `?${params.toString()}`;
+
+                fetch(fullUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    tableBody.innerHTML = data.html;
+                    paginationLinks.innerHTML = data.links;
+                    addModalListeners(); // Tambahkan lagi event listener setelah tabel diperbarui
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    alert('Failed to load data. Please check the console.');
+                });
+            }
+
+            // Search input event
+            searchInput.addEventListener('input', function() {
+                fetchAndRenderPublishers(window.location.pathname);
+            });
+
+            // Event listener untuk klik pada tombol pagination
+            paginationLinks.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    e.preventDefault();
+                    const url = e.target.href;
+                    fetchAndRenderPublishers(url);
+                }
+            });
+        });
+    </script>
 @endpush
