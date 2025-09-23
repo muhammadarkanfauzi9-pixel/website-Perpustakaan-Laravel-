@@ -12,7 +12,7 @@
 </head>
 
 <body class="bg-gray-100 font-[Poppins]">
-    
+
     {{-- Navbar --}}
 <nav class="bg-white px-4 py-4 md:px-8 lg:py-3 shadow-sm">
     <div class="flex justify-between items-center">
@@ -25,6 +25,9 @@
             <li>
                 <a href="{{ route('books.index') }}" class="text-gray-600 hover:text-gray-900 px-3">Daftar Buku</a>
             </li>
+
+
+
             {{-- Tautan "Riwayat Peminjaman" hanya untuk pengguna yang login --}}
             @auth
             <li>
@@ -35,14 +38,14 @@
         <ul class="flex gap-4 items-center">
             @guest
             <li>
-                <a href="{{ route('login') }}" 
+                <a href="{{ route('login') }}"
                    class="px-4 py-2 border border-gray-600 text-gray-700 rounded-md hover:bg-gray-100 transition">
                     Login
                 </a>
             </li>
             {{-- Tombol Register --}}
             <li>
-                <a href="{{ route('register') }}" 
+                <a href="{{ route('register') }}"
                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition">
                     Register
                 </a>
@@ -50,32 +53,37 @@
             @endguest
 
             @auth
-            {{-- Tombol Logout --}}
-            <li>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" 
-                        class="px-4 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-600 hover:text-white transition">
-                        Logout
-                    </button>
-                </form>
-            </li>
-
-            <li class="flex items-center gap-3">
-                {{-- Nama User --}}
-                <span class="text-gray-700 font-medium">
-                    {{ Auth::user()->name }}
-                </span>
-
-                {{-- Avatar huruf pertama --}}
-                <div class="avatar placeholder">
-                    <div class="bg-gray-200 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
-                        <span class="text-lg font-semibold">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </span>
+            <div class="relative inline-block text-left">
+                <button type="button" class="flex items-center text-gray-600 hover:text-gray-900 px-3" onclick="toggleDropdown()">
+                    @if(auth()->user()->profile_image)
+                        <img src="{{ asset('storage/' . auth()->user()->profile_image) }}"
+                             alt="Profile" class="w-8 h-8 rounded-full mr-2">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    @endif
+                    <span>{{ auth()->user()->name }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                    <div class="py-1">
+                        <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-user-cog mr-2"></i>Profile Settings
+                        </a>
+                        <a href="{{ route('settings.password.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-lock mr-2"></i>Change Password
+                        </a>
+                        <hr class="my-1">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </li>
+            </div>
             @endauth
         </ul>
     </div>
@@ -144,7 +152,7 @@
             @endforelse
         </div>
     </section>
-    
+
     {{-- Riwayat Peminjaman (Hanya muncul jika sudah login) --}}
     <section id="borrowings" class="py-12 px-4 md:px-8">
         @auth
@@ -192,13 +200,19 @@
 
 {{-- Script Navbar Mobile --}}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const navButton = document.getElementById('navButton');
-        const navMenu = document.getElementById('navMenu');
-        navButton.addEventListener('click', () => {
-            navMenu.classList.toggle('hidden');
-            navMenu.classList.toggle('flex');
-        });
+    function toggleDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const button = event.target.closest('button');
+
+        if (!button || !button.onclick || button.onclick.toString().indexOf('toggleDropdown') === -1) {
+            dropdown.classList.add('hidden');
+        }
     });
 </script>
 </body>
