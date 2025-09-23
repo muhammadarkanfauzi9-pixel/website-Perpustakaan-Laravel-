@@ -26,7 +26,7 @@
                     <div class="relative inline-block text-left">
                         <button type="button" class="flex items-center text-gray-600 hover:text-gray-900 px-3" onclick="toggleDropdown()">
                             @if(auth()->user()->profile_image)
-                                <img src="{{ asset('storage/profile_images/' . auth()->user()->profile_image) }}"
+                                <img src="{{ asset('storage/' . auth()->user()->profile_image) }}"
                                      alt="Profile" class="w-8 h-8 rounded-full mr-2">
                             @else
                                 <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
