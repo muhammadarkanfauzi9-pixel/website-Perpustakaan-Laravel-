@@ -24,54 +24,32 @@ class SettingsController extends Controller
      * Update user profile.
      */
     public function updateProfile(UpdateProfileRequest $request)
-    {
-        $user = auth()->user();
-        $data = $request->validated();
+{
+    $user = auth()->user();
+    $data = $request->validated();
 
-        // Add debugging
-        \Log::info('Profile update request received', [
-            'user_id' => $user->id,
-            'has_file' => $request->hasFile('profile_image'),
-            'all_files' => $request->allFiles(),
-            'all_data' => $request->all()
-        ]);
-
-        // Handle profile image upload
-        if ($request->hasFile('profile_image')) {
-            \Log::info('Processing profile image upload', [
-                'original_name' => $request->profile_image->getClientOriginalName(),
-                'size' => $request->profile_image->getSize(),
-                'mime_type' => $request->profile_image->getMimeType()
-            ]);
-
-            // Delete old profile image if exists
-            if ($user->profile_image && Storage::disk('public')->exists('profile_images/' . $user->profile_image)) {
-                Storage::disk('public')->delete('profile_images/' . $user->profile_image);
-                \Log::info('Deleted old profile image', ['old_image' => $user->profile_image]);
-            }
-
-            // Store new profile image
-            $imageName = time() . '.' . $request->profile_image->extension();
-            \Log::info('Attempting to store new image', ['image_name' => $imageName]);
-
-            $result = Storage::disk('public')->putFileAs('profile_images', $request->profile_image, $imageName);
-            \Log::info('Image storage result', ['result' => $result, 'image_name' => $imageName]);
-
-            $data['profile_image'] = $imageName;
-
-            \Log::info('Profile image updated successfully', ['new_image' => $imageName]);
-        } else {
-            \Log::info('No profile image in request');
+    // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        // Hapus foto lama kalau ada
+        if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+            Storage::disk('public')->delete($user->profile_image);
         }
 
-        // Update user profile
-        $user->update($data);
+        // Simpan foto baru ke storage/app/public/
+        // return value: "123456.png"
+        $imageName = time() . '.' . $request->profile_image->extension();
+        $request->profile_image->storeAs('public', $imageName);
 
-        \Log::info('Profile updated successfully', ['user_id' => $user->id, 'profile_image' => $user->profile_image]);
-
-        return redirect()->route('settings.index')
-                        ->with('success', 'Profile updated successfully!');
+        // simpan ke DB
+        $data['profile_image'] = $imageName;
     }
+
+    // Update user profile
+    $user->update($data);
+
+    return redirect()->route('settings.index')
+                    ->with('success', 'Profile updated successfully!');
+}
 
     /**
      * Show the change password form.

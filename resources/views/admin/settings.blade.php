@@ -36,6 +36,7 @@
 
                             <form action="{{ route('admin.settings.profile.update') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
+                                @method('PUT')
 
                                 <!-- Profile Image -->
                                 <div class="mb-6">

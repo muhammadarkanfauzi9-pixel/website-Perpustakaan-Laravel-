@@ -57,7 +57,7 @@ Route::middleware(['web', 'auth','admin'])->prefix('admin')->name('admin.')->gro
 
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
-    Route::match(['put', 'patch'], '/settings/profile', [SettingsController::class, 'updateProfile'])
+    Route::match(['put', 'patch'], '/settings/profile', [AdminSettingsController::class, 'updateProfile'])
     ->name('settings.profile.update');
     Route::get('/settings/change-password', [AdminSettingsController::class, 'showChangePassword'])->name('settings.password.show');
     Route::post('/settings/change-password', [AdminSettingsController::class, 'updatePassword'])->name('settings.password.update');
