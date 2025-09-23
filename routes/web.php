@@ -14,6 +14,10 @@ use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminBorrowingController;
 use App\Http\Controllers\Admin\AdminAuthorController;
 use App\Http\Controllers\BorrowingController;
+use App\Http\Controllers\Admin\PublisherController;
+use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 
 // -------------------- Public --------------------
 Route::get('/', [HomeController::class, 'index'])->name('landing');
@@ -29,9 +33,15 @@ Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show')
 Route::get('/books/category/{id}', [BookController::class, 'byCategory'])->name('books.byCategory');
 
 // -------------------- Authenticated Users --------------------
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])->name('home');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::match(['post', 'put', 'patch'], '/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::get('/settings/change-password', [SettingsController::class, 'showChangePassword'])->name('settings.password.show');
+    Route::post('/settings/change-password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
 
     // Rute peminjaman untuk user
     Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowings.store');
@@ -39,29 +49,42 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // -------------------- Admin --------------------
-Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
+Route::middleware(['web', 'auth','admin'])->prefix('admin')->name('admin.')->group(function(){
 
     // Dashboard
     Route::get('/', fn() => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // Settings
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::match(['put', 'patch'], '/settings/profile', [SettingsController::class, 'updateProfile'])
+    ->name('settings.profile.update');
+    Route::get('/settings/change-password', [AdminSettingsController::class, 'showChangePassword'])->name('settings.password.show');
+    Route::post('/settings/change-password', [AdminSettingsController::class, 'updatePassword'])->name('settings.password.update');
+
     // Users
     Route::resource('users', AdminUserController::class);
+    Route::get('users/{user}/json', [AdminUserController::class, 'showJson'])->name('users.json');
 
     // Publishers
     Route::resource('publishers', AdminPublisherController::class);
+    Route::get('publishers/{publisher}/json', [AdminPublisherController::class, 'showJson'])->name('publishers.json');
+    Route::get('searchPublisher', [AdminPublisherController::class, 'search'])->name('publishers.search');
 
     // Shelves
     Route::resource('shelves', AdminShelfController::class);
+    Route::get('shelves/{shelf}/edit', [AdminShelfController::class, 'edit'])->name('shelves.edit');
 
     // Categories
     Route::resource('categories', AdminCategoryController::class);
+    Route::get('categories/{category}/json', [AdminCategoryController::class, 'json'])->name('categories.json');
 
     // Books
     Route::resource('books', AdminBookController::class);
 
     // Authors
     Route::resource('authors', AdminAuthorController::class);
+    Route::get('authors/{author}/json', [AdminAuthorController::class, 'showJson'])->name('authors.json');
 
     // Borrowings
     Route::resource('borrowings', AdminBorrowingController::class);
