@@ -10,13 +10,13 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
-    
+
     public function borrowings(){
         return $this->hasMany(Borrowing::class);
     }
-    
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    
+
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'username',
+        'profile_image',
     ];
 
     /**
