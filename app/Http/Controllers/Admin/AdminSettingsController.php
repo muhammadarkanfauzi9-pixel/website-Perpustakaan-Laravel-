@@ -32,8 +32,8 @@ class AdminSettingsController extends Controller
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
             // Delete old profile image if exists
-            if ($user->profile_image && Storage::exists('public/' . $user->profile_image)) {
-                Storage::delete('public/' . $user->profile_image);
+            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                Storage::disk('public')->delete($user->profile_image);
             }
 
             // Store new profile image
