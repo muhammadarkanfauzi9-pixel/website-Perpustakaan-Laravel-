@@ -10,9 +10,23 @@ use Illuminate\Http\Request;
 
 class AdminPublisherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $publishers = Publisher::paginate(10);
+        $query = Publisher::orderBy('name');
+
+        if ($request->has('publisher_name')) {
+            $query->where('name', 'like', '%' . $request->publisher_name . '%');
+        }
+
+        $publishers = $query->paginate(2);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.publishers._table', compact('publishers'))->render(),
+                'links' => $publishers->links()->toHtml()
+            ]);
+        }
+
         return view('admin.publishers.index', compact('publishers'));
     }
 
@@ -44,6 +58,11 @@ class AdminPublisherController extends Controller
         // Tidak diperlukan
     }
 
+    public function showJson(Publisher $publisher)
+    {
+        return response()->json($publisher);
+    }
+
     public function edit(Publisher $publisher)
     {
         return response()->json($publisher);
@@ -59,9 +78,7 @@ class AdminPublisherController extends Controller
     {
         $publisher->delete();
         return redirect()
-        ->route('admin.publishers.index')
-        ->with('success', 'Publisher deleted successfully!');
+            ->route('admin.publishers.index')
+            ->with('success', 'Publisher deleted successfully!');
     }
-
-    
 }

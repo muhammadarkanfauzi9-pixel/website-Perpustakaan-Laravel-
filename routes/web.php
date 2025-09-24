@@ -84,7 +84,7 @@ Route::middleware(['web', 'auth','admin'])->prefix('admin')->name('admin.')->gro
 
     // Authors
     Route::resource('authors', AdminAuthorController::class);
-    Route::get('authors/{author}/json', [AdminAuthorController::class, 'showJson'])->name('authors.json');
+    Route::get('authors/{author}/json', [AdminAuthorController::class, 'json'])->name('authors.json');
 
     // Borrowings
     Route::resource('borrowings', AdminBorrowingController::class);

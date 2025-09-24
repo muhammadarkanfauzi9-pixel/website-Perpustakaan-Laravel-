@@ -41,6 +41,7 @@
         });
     </script>
 
+
     @stack('scripts')
 </body>
 

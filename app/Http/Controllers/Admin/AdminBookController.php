@@ -15,13 +15,33 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminBookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::with(['author', 'publisher', 'category', 'shelf'])->paginate(10);
+        $query = Book::with(['author', 'publisher', 'category', 'shelf'])->orderBy('title');
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where('title', 'like', '%' . $search . '%')
+                  ->orWhereHas('author', function ($q) use ($search) {
+                      $q->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('category', function ($q) use ($search) {
+                      $q->where('name', 'like', '%' . $search . '%');
+                  });
+        }
+
+        $books = $query->paginate(2);
         $authors = Author::all();
         $publishers = Publisher::all();
         $categories = Category::all();
         $shelves = Shelf::all();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.books._table', compact('books'))->render(),
+                'links' => $books->links()->toHtml()
+            ]);
+        }
 
         return view('admin.books.index', compact('books', 'authors', 'publishers', 'categories', 'shelves'));
     }

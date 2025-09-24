@@ -16,7 +16,7 @@ class Book extends Model
         'publisher_id',
         'shelf_id',
         'year',
-        'book_img' // Perbaikan di sini: Ubah 'cover' menjadi 'book_img'
+        'book_img' 
     ];
 
     public function author()
@@ -39,13 +39,13 @@ class Book extends Model
         return $this->belongsTo(Shelf::class);
     }
 
-    // Tambahkan relasi ini untuk fitur peminjaman
+    // relasi ini untuk fitur peminjaman
     public function borrowings()
     {
         return $this->hasMany(Borrowing::class);
     }
 
-    // Tambahkan method ini untuk mengecek ketersediaan buku
+    // method ini untuk mengecek ketersediaan buku
     public function isAvailable()
     {
         return $this->borrowings()->whereNull('returned_at')->doesntExist();

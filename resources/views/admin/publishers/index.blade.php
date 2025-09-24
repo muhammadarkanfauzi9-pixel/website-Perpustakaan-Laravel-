@@ -37,9 +37,9 @@
 
             {{-- Navigasi Pagination --}}
             <div id="pagination-links" class="p-4 flex justify-center">
-                {{-- Remove default Laravel pagination links to avoid duplication --}}
-                {{-- AJAX pagination handled in script --}}
-            </div>
+    {{ $publishers->links('pagination::tailwind') }}
+</div>
+
         </div>
 
         {{-- Form Tambah Publisher --}}
@@ -131,33 +131,37 @@
 
             // Function to fetch and render publishers
             function fetchAndRenderPublishers(url) {
-                const searchQuery = searchInput.value;
-                const params = new URLSearchParams();
-                if (searchQuery) params.append('publisher_name', searchQuery);
+            const searchQuery = searchInput.value;
+            const params = new URLSearchParams();
+            if (searchQuery) params.append('publisher_name', searchQuery);
 
-                const fullUrl = url ? `${url.split('?')[0]}?${params.toString()}` : `?${params.toString()}`;
-
-                fetch(fullUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    tableBody.innerHTML = data.html;
-                    paginationLinks.innerHTML = data.links;
-                    addModalListeners(); // Tambahkan lagi event listener setelah tabel diperbarui
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    alert('Failed to load data. Please check the console.');
-                });
+            let fullUrl = url || window.location.pathname;
+            if (params.toString()) {
+            fullUrl += (fullUrl.includes('?') ? '&' : '?') + params.toString();
             }
+
+            fetch(fullUrl, {
+            headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+            }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        tableBody.innerHTML = data.html;
+        paginationLinks.innerHTML = data.links;
+        addModalListeners(); // Tambahkan lagi event listener setelah tabel diperbarui
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        alert('Failed to load data. Please check the console.');
+    });
+}
+
 
             // Search input event
             searchInput.addEventListener('input', function() {

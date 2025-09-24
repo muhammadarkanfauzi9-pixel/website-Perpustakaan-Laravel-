@@ -3,15 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 
 class AdminCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::paginate(10);
+        $query = Category::orderBy('name');
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $categories = $query->paginate(2);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.categories._table', compact('categories'))->render(),
+                'links' => $categories->links()->toHtml()
+            ]);
+        }
+
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -21,15 +36,13 @@ class AdminCategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('success', 'Category added successfully!');
     }
 
-    public function json($id)
+    public function json(Category $category)
     {
-        $category = Category::findOrFail($id);
         return response()->json($category);
     }
 
-    public function update(UpdateCategoryRequest $request, $id)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $category = Category::findOrFail($id);
         $category->update($request->validated());
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully!');
     }

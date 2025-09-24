@@ -6,7 +6,7 @@
 <div class="container mx-auto p-4 flex flex-col md:flex-row items-start md:items-center gap-8">
     {{-- Gambar Buku --}}
     <div class="md:w-1/3">
-        <img src="{{ asset('storage/' . $book->book_img) }}" alt="{{ $book->title }}" class="w-full rounded-lg shadow-lg">
+        <img src="{{ $book->book_img ? asset('storage/' . $book->book_img) : asset('images/default-book.jpg') }}" alt="{{ $book->title }}" class="w-full rounded-lg shadow-lg">
     </div>
 
     {{-- Detail Buku & Tombol Pinjam --}}

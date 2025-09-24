@@ -5,11 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
 class Author extends Model
 {
     use HasFactory;
@@ -19,7 +14,13 @@ class Author extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name','description',];
-}
+    protected $fillable = ['name','description'];
 
-?>
+    /**
+     * Get the books for the author.
+     */
+    public function books()
+    {
+        return $this->hasMany(Book::class);
+    }
+}

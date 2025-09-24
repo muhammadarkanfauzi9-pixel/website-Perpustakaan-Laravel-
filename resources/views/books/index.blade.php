@@ -8,7 +8,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         @foreach ($books as $book)
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <img src="{{ asset('storage/' . $book->book_img) }}" alt="{{ $book->title }}" class="w-full h-48 object-cover">
+            <img src="{{ $book->book_img ? asset('storage/' . $book->book_img) : asset('images/default-book.jpg') }}" alt="{{ $book->title }}" class="w-full h-48 object-cover">
             <div class="p-4">
                 <h2 class="text-xl font-semibold mb-2">{{ $book->title }}</h2>
                 <p class="text-gray-600 mb-1">Oleh: {{ $book->author->name }}</p>

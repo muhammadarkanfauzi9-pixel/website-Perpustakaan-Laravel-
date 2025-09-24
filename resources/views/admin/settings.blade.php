@@ -154,6 +154,19 @@ function previewImage(input) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
+    const successMessage = document.querySelector('.bg-green-100');
+
+    // If there's a success message, refresh the image to show the newly uploaded image
+    if (successMessage) {
+        const profileImage = document.getElementById('profilePreview');
+
+        // Force refresh the image by adding a timestamp to avoid caching
+        if (profileImage.src.includes('storage/')) {
+            const timestamp = new Date().getTime();
+            profileImage.src = profileImage.src + '?t=' + timestamp;
+        }
+    }
+
     if (form) {
         form.addEventListener('submit', function() {
             const submitBtn = form.querySelector('button[type="submit"]');

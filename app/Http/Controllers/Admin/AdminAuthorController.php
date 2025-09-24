@@ -10,9 +10,23 @@ use App\Http\Requests\UpdateAuthorRequest;
 
 class AdminAuthorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $authors = Author::all(); // Mengambil semua data author
+        $query = Author::orderBy('name');
+
+        if ($request->has('author_name')) {
+            $query->where('name', 'like', '%' . $request->author_name . '%');
+        }
+
+        $authors = $query->paginate(2);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.authors._table', compact('authors'))->render(),
+                'links' => $authors->links()->toHtml()
+            ]);
+        }
+
         return view('admin.authors.index', compact('authors'));
     }
 
@@ -40,6 +54,12 @@ class AdminAuthorController extends Controller
 
     public function destroy(Author $author)
     {
+        // Check if author has associated books
+        if ($author->books()->count() > 0) {
+            return redirect()->route('admin.authors.index')
+                             ->with('error', 'Cannot delete author. There are books associated with this author.');
+        }
+
         $author->delete();
         return redirect()->route('admin.authors.index')->with('success', 'Author deleted successfully!');
     }

@@ -3,18 +3,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Borrowing;
 use App\Models\Book;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class AdminBorrowingController extends Controller
 {
     // List semua peminjaman
-    public function index()
+    public function index(Request $request)
     {
-        $borrowings = Borrowing::with(['user', 'book'])->paginate(10);
+        $query = Borrowing::with(['user', 'book'])->orderBy('borrowed_at', 'desc');
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            })->orWhereHas('book', function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%');
+            });
+        }
+
+        $borrowings = $query->paginate(2);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.borrowings._table', compact('borrowings'))->render(),
+                'links' => $borrowings->links()->toHtml()
+            ]);
+        }
+
         return view('admin.borrowings.index', compact('borrowings'));
     }
 
@@ -79,5 +98,12 @@ class AdminBorrowingController extends Controller
         $borrowing = Borrowing::findOrFail($id);
         $borrowing->delete();
         return redirect()->route('admin.borrowings.index')->with('success', 'Borrowing deleted successfully!');
+    }
+
+    // Ambil data peminjaman untuk modal
+    public function show($id)
+    {
+        $borrowing = Borrowing::with(['user', 'book'])->findOrFail($id);
+        return response()->json($borrowing);
     }
 }

@@ -5,3 +5,111 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Table Wrapper Styles */
+.table-wrapper {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+}
+
+/* Dynamic Admin Buttons Styles */
+.dynamic-button {
+    @apply transition-all duration-200 ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dynamic-button:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.dynamic-button:active {
+    transform: translateY(0);
+}
+
+/* Custom tooltip styles */
+.dynamic-button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 1000;
+}
+
+.dynamic-button:hover::after {
+    opacity: 1;
+}
+
+/* Pagination Styles */
+.pagination-wrapper {
+    @apply flex items-center justify-between;
+}
+
+.pagination-button {
+    @apply px-3 py-2 text-sm font-medium transition-all duration-200;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+}
+
+.pagination-button:hover:not(.pagination-disabled) {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.pagination-button.pagination-active {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+.pagination-button.pagination-disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Table Styles */
+.admin-table {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+.admin-table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+}
+
+.admin-table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-200;
+}
+
+.admin-table tr:hover {
+    @apply bg-gray-50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dynamic-button span {
+        display: none;
+    }
+
+    .dynamic-button {
+        @apply px-2 py-2;
+    }
+
+    .pagination-wrapper {
+        @apply flex-col space-y-4;
+    }
+
+    .pagination-button {
+        @apply px-2 py-1 text-xs;
+    }
+}

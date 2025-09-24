@@ -31,16 +31,20 @@ class AdminSettingsController extends Controller
 
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
-            // Delete old profile image if exists
-            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
-                Storage::disk('public')->delete($user->profile_image);
-            }
+    // Hapus foto lama
+    if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+        Storage::disk('public')->delete($user->profile_image);
+    }
 
-            // Store new profile image
-            $imageName = time() . '.' . $request->profile_image->extension();
-            $request->profile_image->storeAs('public', $imageName);
-            $data['profile_image'] = $imageName;
-        }
+    // Tentukan folder berdasarkan role
+    $folder = $user->is_admin ? 'profile_images/admin' : 'profile_images/users';
+
+    // Simpan foto baru
+    $path = $request->file('profile_image')->store('profile_images/admin', 'public');
+
+    // Simpan ke DB
+    $data['profile_image'] = $path;
+}
 
         // Update user profile
         $user->update($data);

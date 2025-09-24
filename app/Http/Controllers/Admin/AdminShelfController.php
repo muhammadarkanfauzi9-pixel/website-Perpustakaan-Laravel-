@@ -10,9 +10,23 @@ use Illuminate\Http\Request;
 
 class AdminShelfController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $shelves = Shelf::paginate(10);
+        $query = Shelf::orderBy('name');
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $shelves = $query->paginate(2);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.shelves._table', compact('shelves'))->render(),
+                'links' => $shelves->links()->toHtml()
+            ]);
+        }
+
         return view('admin.shelves.index', compact('shelves'));
     }
 
@@ -37,16 +51,24 @@ class AdminShelfController extends Controller
         return response()->json($shelf);
     }
 
-    public function update(UpdateShelfRequest $request, Shelf $shelf)
-    {
-        dd($shelf->id);
-        $shelf->update($request->validated());
-        return redirect()->route('admin.shelves.index')->with('success', 'Shelf updated successfully!');
-    }
+    public function update(Request $request, Shelf $shelf)
+{
+    $request->validate([
+        'name' => 'required|string|max:255|unique:shelves,name,' . $shelf->id,
+        // ... validasi lain jika ada
+    ]);
+
+    $shelf->update($request->all());
+
+    return redirect()->route('admin.shelves.index')
+                     ->with('success', 'Shelf updated successfully!');
+}
 
     public function destroy(Shelf $shelf)
-    {
-        $shelf->delete();
-        return response()->json(['success' => 'Shelf deleted successfully!']);
-    }
+{
+    $shelf->delete();
+    
+    return redirect()->route('admin.shelves.index')
+                     ->with('success', 'Shelf deleted successfully!');
+}
 }

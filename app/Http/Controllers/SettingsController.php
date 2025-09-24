@@ -35,21 +35,23 @@ class SettingsController extends Controller
             Storage::disk('public')->delete($user->profile_image);
         }
 
-        // Simpan foto baru ke storage/app/public/
-        // return value: "123456.png"
-        $imageName = time() . '.' . $request->profile_image->extension();
-        $request->profile_image->storeAs('public', $imageName);
+        // Tentukan folder khusus untuk user
+        $folder = 'profile_images/users';
 
-        // simpan ke DB
-        $data['profile_image'] = $imageName;
+        // Simpan foto baru
+        $path = $request->file('profile_image')->store('profile_images/users', 'public');
+
+        // Simpan ke DB (contoh: "profile_images/users/1758641643.png")
+        $data['profile_image'] = $path;
     }
 
     // Update user profile
     $user->update($data);
 
     return redirect()->route('settings.index')
-                    ->with('success', 'Profile updated successfully!');
+                     ->with('success', 'Profile updated successfully!');
 }
+
 
     /**
      * Show the change password form.

@@ -10,7 +10,7 @@
     <a href="{{ route('admin.users.index') }}"
         class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200 {{ request()->routeIs('admin.users') ? 'bg-gray-200 font-medium' : '' }}">
         <i class="fas fa-users"></i>
-        <span>Users</span>
+        <span>Users Management</span>
     </a>
 
     {{-- Books --}}
@@ -21,8 +21,8 @@
     </a>
 
     {{-- Settings --}}
-    <a href="{{ route('admin.books.index') }}"
-        class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200">
+    <a href="{{ route('admin.settings.index') }}"
+        class="text-sm flex items-center gap-3 px-4 py-3 rounded transition-all duration-300 hover:bg-gray-200 {{ request()->routeIs('admin.settings.*') ? 'bg-gray-200 font-medium' : '' }}">
         <i class="fas fa-gear"></i>
         <span>Settings</span>
     </a>
@@ -63,9 +63,34 @@
     </a>
 
     {{-- Logout --}}
-    <a href="{{ route('logout') }}"
-        class="text-sm flex items-center gap-3 px-4 py-3 mt-4 rounded transition-all duration-300 hover:bg-red-100 text-red-600">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-    </a>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="inline">
+        @csrf
+        <button type="submit"
+            class="text-sm flex items-center gap-3 px-4 py-3 mt-4 rounded transition-all duration-300 hover:bg-red-100 text-red-600 w-full text-left">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </form>
+    <script>
+        document.getElementById('logout-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({})
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    alert('Logout failed.');
+                }
+            }).catch(error => {
+                alert('Logout failed.');
+            });
+        });
+    </script>
 </nav>
